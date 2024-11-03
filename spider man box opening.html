@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spider-Man Box Opening Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('https://wallpapercave.com/wp/wp5394570.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #ffffff;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #container {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffdf00;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
+            margin-bottom: 10px;
+        }
+
+        #welcomeMessage {
+            font-size: 24px;
+            color: #ffdf00;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+            margin-bottom: 20px;
+        }
+
+        #box {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(145deg, #ff0033, #cc0000);
+            border-radius: 15px;
+            box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.5),
+                        -20px -20px 60px rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s, box-shadow 0.5s;
+        }
+
+        #box:hover {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        #reward {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #ffdf00;
+            opacity: 0;
+            transition: opacity 0.5s;
+            position: relative;
+            z-index: 3;
+        }
+
+        #spiderManImage {
+            width: 150px;
+            height: auto;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s;
+            bottom: 10px;
+        }
+
+        #openBtn {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #0033ff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            position: relative;
+            z-index: 4;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #openBtn:hover {
+            background-color: #0056d6;
+            transform: scale(1.05);
+        }
+
+        #inventory {
+            margin-top: 20px;
+            color: #ffdf00;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        #inventory h3 {
+            margin: 0;
+            font-size: 20px;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+        }
+
+        #inventoryList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #inventoryList li {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #details {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            color: #ffdf00;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            width: 80%;
+            max-width: 400px;
+            z-index: 5;
+        }
+
+        .closeBtn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .web-pattern {
+            background-image: url('https://i.pinimg.com/originals/1e/3c/f9/1e3cf9f15cd59d588b77b3f83c48a9b2.png');
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        /* Exchange Spiders Styles */
+        #exchange {
+            margin-top: 20px;
+        }
+
+        #exchangeForm {
+            display: none; /* Hidden by default */
+        }
+
+        #exchangeBtn {
+            padding: 10px 20px;
+            background-color: #ff0033;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #exchangeMessage {
+            margin-top: 10px;
+            color: #ffdf00;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Spider-Man Box Opening Simulation</h1>
+        <div id="welcomeMessage">This is a Spider-Man game!</div>
+        
+        <div id="box">
+            <div class="web-pattern"></div>
+            <div id="reward"></div>
+            <img id="spiderManImage" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Spider-Man_2018.png" alt="Spider-Man">
+        </div>
+        <button id="openBtn">Open Box</button>
+        
+        <div id="inventory">
+            <h3>Your Inventory:</h3>
+            <ul id="inventoryList"></ul>
+        </div>
+
+        <div id="exchange">
+            <h3>Exchange Spiders</h3>
+            <button id="showExchangeFormBtn">Exchange Spider</button>
+            <div id="exchangeForm">
+                <select id="exchangeSelect">
+                    <option value="">Select a Spider to Exchange</option>
+                </select>
+                <button id="exchangeBtn">Exchange</button>
+                <div id="exchangeMessage"></div>
+            </div>
+        </div>
+
+        <div id="details">
+            <button class="closeBtn" onclick="closeDetails()">✖</button>
+            <h2>Spider-Man Details</h2>
+            <div id="detailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const box = document.getElementById('box');
+        const openBtn = document.getElementById('openBtn');
+        const reward = document.getElementById('reward');
+        const spiderManImage = document.getElementById('spiderManImage');
+        const inventoryList = document.getElementById('inventoryList');
+        const details = document.getElementById('details');
+        const detailsContent = document.getElementById('detailsContent');
+        const exchangeForm = document.getElementById('exchangeForm');
+        const exchangeSelect = document.getElementById('exchangeSelect');
+        const exchangeMessage = document.getElementById('exchangeMessage');
+
+        const rewards = [
+            { name: "🕷️ Spider-Man 2099", health: 90, damage: 15, powers: ["Enhanced Strength", "Claw and Fangs", "Telepathic Ability"], description: "A futuristic Spider-Man with amazing abilities." },
+            { name: "🌌 Spider-Gwen", health: 85, damage: 12, powers: ["Agility and Acrobatics", "Spider-Sense", "Sound Manipulation"], description: "A hero from another universe." },
+            { name: "🎭 Miles Morales", health: 80, damage: 14, powers: ["Invisibility", "Electric Venom Blast", "Camouflage"], description: "The new Spider-Man with unique powers." },
+            { name: "🕸️ Spider-Man Noir", health: 95, damage: 18, powers: ["Stealth", "Enhanced Reflexes", "Gadgetry"], description: "A dark version of Spider-Man with gadgets." },
+            { name: "🔮 Spider-Ham", health: 70, damage: 8, powers: ["Cartoon Physics", "Super Strength", "Shape-Shifting"], description: "A humorous Spider-Man from a cartoon world." },
+            { name: "🎉 Spider-Man (Symbiote)", health: 100, damage: 20, powers: ["Enhanced Strength", "Shape-Shifting Suit", "Regeneration"], description: "A powerful Spider-Man with symbiotic abilities." },
+            { name: "🎊 Spider-Woman", health: 90, damage: 15, powers: ["Flying", "Enhanced Agility", "Bioelectric Venom Blast"], description: "A superheroine with flight capabilities." },
+            { name: "🎈 Scarlet Spider", health: 85, damage: 14, powers: ["Regenerative Healing", "Enhanced Speed", "Holographic Decoys"], description: "A clone of Spider-Man with unique skills." },
+        ];
+
+        const inventory = [];
+
+        openBtn.addEventListener('click', () => {
+            openBtn.disabled = true;
+            box.style.animation = 'shake 0.5s';
+            reward.style.opacity = 0;
+            spiderManImage.style.opacity = 0;
+
+            setTimeout(() => {
+                box.style.animation = 'openBox 1s forwards';
+            }, 500);
+
+            setTimeout(() => {
+                const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+                inventory.push(randomReward);
+                updateInventory();
+                showReward(randomReward);
+                openBtn.disabled = false;
+            }, 1500);
+        });
+
+        function showReward(rewardData) {
+            reward.textContent = `You received: ${rewardData.name}`;
+            reward.style.opacity = 1;
+            spiderManImage.style.opacity = 1;
+            updateExchangeOptions();
+        }
+
+        function updateInventory() {
+            inventoryList.innerHTML = '';
+            inventory.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.textContent = item.name;
+                li.onclick = () => showDetails(item);
+                inventoryList.appendChild(li);
+            });
+        }
+
+        function showDetails(item) {
+            detailsContent.innerHTML = `
+                <p><strong>Name:</strong> ${item.name}</p>
+                <p><strong>Health:</strong> ${item.health}</p>
+                <p><strong>Damage:</strong> ${item.damage}</p>
+                <p><strong>Super Powers:</strong> ${item.powers.join(', ')}</p>
+                <p><strong>Description:</strong> ${item.description}</p>
+            `;
+            details.style.display = 'block';
+        }
+
+        function closeDetails() {
+            details.style.display = 'none';
+        }
+
+        // Exchange Functionality
+        document.getElementById('showExchangeFormBtn').addEventListener('click', () => {
+            exchangeForm.style.display = exchangeForm.style.display === 'block' ? 'none' : 'block';
+            updateExchangeOptions();
+        });
+
+        function updateExchangeOptions() {
+            exchangeSelect.innerHTML = '<option value="">Select a Spider to Exchange</option>';
+            inventory.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = item.name;
+                exchangeSelect.appendChild(option);
+            });
+        }
+
+        document.getElementById('exchangeBtn').addEventListener('click', () => {
+            const selectedIndex = exchangeSelect.value;
+            if (selectedIndex !== "") {
+                const exchangedSpider = inventory.splice(selectedIndex, 1)[0];
+                const newSpider = rewards[Math.floor(Math.random() * rewards.length)]; // Get a new random spider
+                inventory.push(newSpider); // Add new spider to inventory
+                updateInventory();
+                exchangeMessage.textContent = `You exchanged ${exchangedSpider.name} successfully and received ${newSpider.name}!`;
+                exchangeSelect.value = '';
+            } else {
+                exchangeMessage.textContent = "Please select a spider to exchange.";
+            }
+        });
+    </script>
+</body>
+</html>

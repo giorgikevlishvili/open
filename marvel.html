@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Character Selector</title>
+    <style>
+        /* Basic styling for body and layout */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Main container styling */
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.5), inset 0 0 20px rgba(255, 0, 0, 0.3);
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Heading styling */
+        h1 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #f2f2f2;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        /* Styling the character display */
+        .character {
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            display: none;
+            background: linear-gradient(145deg, #282828, #1c1c1c);
+            color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(255, 0, 0, 0.7);
+            transition: transform 0.3s ease;
+        }
+
+        /* Inventory styling */
+        .inventory {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #ffcc00;
+        }
+
+        /* Button for inventory items */
+        .inventory-button {
+            padding: 8px 12px;
+            margin: 5px;
+            background: #ff0033;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Button hover effect */
+        .inventory-button:hover {
+            background: #ff3366;
+            transform: scale(1.05);
+        }
+
+        /* Exchange button styling */
+        .exchange-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #00cc00;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .exchange-button:hover {
+            background: #33cc33;
+        }
+
+        /* Display character with smooth animation */
+        .character.show {
+            display: block;
+            transform: scale(1.1);
+            animation: zoomIn 0.5s ease-out forwards;
+        }
+
+        /* Button styling with glowing effect */
+        button {
+            padding: 12px 24px;
+            margin-top: 20px;
+            background: #ff0033;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), inset 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Button hover effect */
+        button:hover {
+            background: #ff3366;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7), inset 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        /* Animations for smooth character reveal */
+        @keyframes zoomIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Marvel Character Selector</h1>
+    <div id="characterDisplay" class="character"></div>
+    <button id="selectCharacterButton">Select Character</button>
+    <div id="inventoryDisplay" class="inventory"></div>
+    <button id="exchangeCharacterButton" class="exchange-button">Exchange Character</button>
+</div>
+
+<script>
+    const characters = [
+        { 
+            name: "Iron Man 🦾", 
+            img: "path/to/ironman.jpg", 
+            description: "Genius billionaire playboy philanthropist.", 
+            powers: "Powered armor suit, genius-level intellect.", 
+            rarity: "Legendary" 
+        },
+        { 
+            name: "Thor ⚡", 
+            img: "path/to/thor.jpg", 
+            description: "God of Thunder and protector of Asgard.", 
+            powers: "Control over thunder and lightning, superhuman strength.", 
+            rarity: "Epic" 
+        },
+        { 
+            name: "Spider-Man ", 
+            img: "path/to/spiderman.jpg", 
+            description: "Teenager with spider-like abilities.", 
+            powers: "Wall-crawling, superhuman agility, spider-sense.", 
+            rarity: "Rare" 
+        },
+        { 
+            name: "Black Panther ", 
+            img: "path/to/blackpanther.jpg", 
+            description: "King of Wakanda with enhanced abilities.", 
+            powers: "Enhanced senses, strength, agility, vibranium suit.", 
+            rarity: "Epic" 
+        },
+        { 
+            name: "Hulk ", 
+            img: "path/to/hulk.jpg", 
+            description: "Strongest Avenger with incredible strength.", 
+            powers: "Superhuman strength, durability, regeneration.", 
+            rarity: "Legendary" 
+        },
+        { 
+            name: "Captain America ", 
+            img: "path/to/captainamerica.jpg", 
+            description: "Super soldier and leader of the Avengers.", 
+            powers: "Superhuman strength, agility, expert combat skills.", 
+            rarity: "Epic" 
+        },
+        { 
+            name: "Doctor Strange ", 
+            img: "path/to/doctorstrange.jpg", 
+            description: "Master of the mystic arts.", 
+            powers: "Spell casting, teleportation, time manipulation.", 
+            rarity: "Legendary" 
+        },
+        { 
+            name: "Black Widow ", 
+            img: "path/to/blackwidow.jpg", 
+            description: "Skilled spy and martial artist.", 
+            powers: "Expert hand-to-hand combat, espionage skills.", 
+            rarity: "Rare" 
+        },
+        { 
+            name: "Captain Marvel ", 
+            img: "path/to/captainmarvel.jpg", 
+            description: "Powerful hero with cosmic abilities.", 
+            powers: "Superhuman strength, flight, energy projection.", 
+            rarity: "Legendary" 
+        },
+        { 
+            name: "Scarlet Witch ", 
+            img: "path/to/scarletwitch.jpg", 
+            description: "Reality-altering sorceress.", 
+            powers: "Reality manipulation, telekinesis, chaos magic.", 
+            rarity: "Epic" 
+        },
+        { 
+            name: "Wolverine", 
+            img: "path/to/wolverine.jpg", 
+            description: "Regenerative mutant with claws.", 
+            powers: "Regeneration, superhuman senses, adamantium claws.", 
+            rarity: "Rare" 
+        }
+    ];
+
+    const selectCharacterButton = document.getElementById('selectCharacterButton');
+    const characterDisplay = document.getElementById('characterDisplay');
+    const inventoryDisplay = document.getElementById('inventoryDisplay');
+    const exchangeCharacterButton = document.getElementById('exchangeCharacterButton');
+    let inventory = [];
+
+    selectCharacterButton.addEventListener('click', function () {
+        const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+        characterDisplay.innerHTML = `
+            <strong>${randomCharacter.name}</strong><br>
+            <img src="${randomCharacter.img}" alt="${randomCharacter.name}" style="width:100px;"/><br>
+            <em>${randomCharacter.description}</em><br>
+            <span style="color: #ffcc00;">Rarity: ${randomCharacter.rarity}</span><br>
+            <span style="color: #00ffcc;">Powers: ${randomCharacter.powers}</span>
+        `;
+        characterDisplay.classList.add('show');
+
+        // Add character to inventory if not already there
+        if (!inventory.includes(randomCharacter.name)) {
+            inventory.push(randomCharacter.name);
+            updateInventoryDisplay();
+        }
+
+        // Reset the show class after animation for repeated selections
+        setTimeout(() => {
+            characterDisplay.classList.remove('show');
+        }, 3000);
+    });
+
+    function updateInventoryDisplay() {
+        inventoryDisplay.innerHTML = 'Inventory:<br>';
+        inventory.forEach(name => {
+            const character = characters.find(char => char.name === name);
+            inventoryDisplay.innerHTML += `
+                <button class="inventory-button" onclick="showCharacterDetails('${character.name}')">
+                    ${character.name}
+                </button>
+            `;
+        });
+    }
+
+    window.showCharacterDetails = function(name) {
+        const character = characters.find(char => char.name === name);
+        characterDisplay.innerHTML = `
+            <strong>${character.name}</strong><br>
+            <img src="${character.img}" alt="${character.name}" style="width:100px;"/><br>
+            <em>${character.description}</em><br>
+            <span style="color: #ffcc00;">Rarity: ${character.rarity}</span><br>
+            <span style="color: #00ffcc;">Powers: ${character.powers}</span>
+        `;
+        characterDisplay.classList.add('show');
+    }
+
+    exchangeCharacterButton.addEventListener('click', function() {
+        if (inventory.length === 0) {
+            alert("Your inventory is empty! Select a character first.");
+            return;
+        }
+
+        // Prompt user to select a character to exchange
+        const characterToExchange = prompt("Enter the name of the character you want to exchange:");
+        if (!characterToExchange || !inventory.includes(characterToExchange)) {
+            alert("Character not found in your inventory!");
+            return;
+        }
+
+        // Remove the exchanged character from inventory
+        inventory = inventory.filter(name => name !== characterToExchange);
+        updateInventoryDisplay();
+
+        // Select a new random character
+        const newCharacter = characters[Math.floor(Math.random() * characters.length)];
+        inventory.push(newCharacter.name);
+        updateInventoryDisplay();
+        alert(`You exchanged ${characterToExchange} for ${newCharacter.name}!`);
+    });
+</script>
+
+</body>
+</html>

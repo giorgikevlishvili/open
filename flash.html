@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speedster Box Opening Simulator</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff0000, #ffd700); /* Flash-themed gradient */
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            animation: backgroundAnimation 5s infinite alternate; /* Background animation */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .box {
+            width: 250px;
+            height: 250px;
+            background-color: #d50000; /* Flash red */
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #ffd700; /* Flash yellow */
+            animation: pulse 1.5s infinite; /* Pulse animation */
+        }
+
+        .box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 10px;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s;
+            font-size: 1.5rem;
+            color: #000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .inventory {
+            margin-top: 20px;
+            max-width: 400px;
+            text-align: left;
+            font-size: 1rem;
+            display: none; /* Hide initially */
+        }
+
+        .exchange {
+            margin-top: 20px;
+            display: none; /* Hide initially */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        /* Lightning Bolt Animation */
+        .lightning {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Lightning_bolt_icon.svg/512px-Lightning_bolt_icon.svg.png');
+            background-size: 30%;
+            background-repeat: no-repeat;
+            animation: lightning-animation 0.7s infinite alternate;
+            opacity: 0.5;
+        }
+
+        @keyframes lightning-animation {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                background-color: #ff0000; /* Bright red */
+            }
+            50% {
+                background-color: #ff4500; /* Orange-red */
+            }
+            100% {
+                background-color: #d50000; /* Dark red */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Speedster Box Opening Simulator</h1>
+    <div class="box" id="box">
+        <div class="lightning"></div> <!-- Lightning bolt overlay -->
+        <div class="card" id="card"></div>
+    </div>
+    <div class="result" id="result"></div>
+    <div class="inventory" id="inventory"></div>
+
+    <div class="exchange" id="exchange">
+        <h2>Superhero Exchange</h2>
+        <select id="speedsterSelect"></select>
+        <button id="exchangeButton">Exchange Selected Speedster</button>
+    </div>
+
+    <script>
+        const box = document.getElementById('box');
+        const card = document.getElementById('card');
+        const resultText = document.getElementById('result');
+        const inventoryDiv = document.getElementById('inventory');
+        const exchangeDiv = document.getElementById('exchange');
+        const speedsterSelect = document.getElementById('speedsterSelect');
+        const exchangeButton = document.getElementById('exchangeButton');
+
+        const speedsters = [
+            { 
+                name: 'Barry Allen (The Flash)', 
+                rarity: 'Legendary', 
+                color: '#FFD700',
+                description: 'The fastest man alive. Fights for justice and protects Central City.'
+            },
+            { 
+                name: 'Wally West (Kid Flash)', 
+                rarity: 'Epic', 
+                color: '#DA70D6',
+                description: 'A speedster with a strong sense of humor and a heart of gold.'
+            },
+            { 
+                name: 'Jay Garrick', 
+                rarity: 'Rare', 
+                color: '#32CD32',
+                description: 'The original Flash from Earth-2, known for his iconic helmet.'
+            },
+            { 
+                name: 'Reverse-Flash (Eobard Thawne)', 
+                rarity: 'Epic', 
+                color: '#DA70D6',
+                description: 'A time-traveling villain obsessed with defeating The Flash.'
+            },
+            { 
+                name: 'Jesse Quick', 
+                rarity: 'Rare', 
+                color: '#32CD32',
+                description: 'A speedster and member of the Justice Society, trained by her father.'
+            },
+            { 
+                name: 'Zoom (Hunter Zolomon)', 
+                rarity: 'Legendary', 
+                color: '#FFD700',
+                description: 'A deadly speedster who believes that suffering is the only way to achieve speed.'
+            },
+            { 
+                name: 'Max Mercury', 
+                rarity: 'Mythic', 
+                color: '#FF0000',
+                description: 'A mentor to many speedsters and a guardian of speed force.'
+            },
+            { 
+                name: 'Impulse (Bart Allen)', 
+                rarity: 'Rare', 
+                color: '#32CD32',
+                description: 'The grandson of Barry Allen, known for his impulsive nature and speed.'
+            },
+            { 
+                name: 'Godspeed (August Heart)', 
+                rarity: 'Epic', 
+                color: '#DA70D6',
+                description: 'A speedster who can absorb the speed of others, often in a race against Flash.'
+            },
+        ];
+
+        let collectedItems = []; // Array to hold collected speedsters
+
+        function openBox() {
+            // Prevent opening while animation is in progress
+            if (card.style.opacity == 1) return;
+
+            const randomSpeedster = speedsters[Math.floor(Math.random() * speedsters.length)];
+            card.innerHTML = randomSpeedster.name;
+            card.style.backgroundColor = randomSpeedster.color;
+            card.style.opacity = 0;
+
+            // Start opening animation
+            box.style.pointerEvents = 'none'; // Disable box click during animation
+
+            // Show card after a delay
+            setTimeout(() => {
+                card.style.opacity = 1; // Reveal card
+                resultText.innerHTML = `You got a ${randomSpeedster.rarity} speedster: <span style="cursor: pointer; color: #FFD700; text-decoration: underline;" onclick="showDescription('${randomSpeedster.name}')">${randomSpeedster.name}</span>`;
+                resultText.style.opacity = 1; // Show result text
+
+                // Add speedster to inventory if not already collected
+                if (!collectedItems.includes(randomSpeedster.name)) {
+                    collectedItems.push(randomSpeedster.name);
+                    updateInventory();
+                }
+
+                box.style.pointerEvents = 'auto'; // Enable box click after animation
+            }, 1000);
+
+            // Reset card after some time
+            setTimeout(() => {
+                card.style.opacity = 0; // Hide card
+                resultText.style.opacity = 0; // Hide result text
+            }, 3000);
+        }
+
+        function showDescription(name) {
+            const speedster = speedsters.find(s => s.name === name);
+            if (speedster) {
+                alert(`${speedster.name}\nRarity: ${speedster.rarity}\nDescription: ${speedster.description}`);
+            }
+        }
+
+        function updateInventory() {
+            // Show inventory and update its content
+            inventoryDiv.style.display = 'block';
+            inventoryDiv.innerHTML = '<h2>Your Inventory:</h2>';
+            collectedItems.forEach(item => {
+                const button = document.createElement('button');
+                button.innerText = item;
+                button.style.backgroundColor = speedsters.find(s => s.name === item).color;
+                button.onclick = () => showDescription(item);
+                inventoryDiv.appendChild(button);
+            });
+
+            // Update exchange options
+            updateExchangeOptions();
+        }
+
+        function updateExchangeOptions() {
+            speedsterSelect.innerHTML = ''; // Clear current options
+            collectedItems.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                speedsterSelect.appendChild(option);
+            });
+            exchangeDiv.style.display = collectedItems.length > 0 ? 'flex' : 'none'; // Show exchange if inventory is not empty
+        }
+
+        exchangeButton.addEventListener('click', () => {
+            const selectedSpeedster = speedsterSelect.value;
+            if (selectedSpeedster) {
+                const speedster = speedsters.find(s => s.name === selectedSpeedster);
+                const rarity = speedster.rarity;
+
+                // Remove the selected speedster
+                collectedItems = collectedItems.filter(item => item !== selectedSpeedster);
+                
+                // Get a new speedster of the same rarity, excluding the selected one
+                const newSpeedsters = speedsters.filter(s => s.rarity === rarity && s.name !== selectedSpeedster);
+                if (newSpeedsters.length > 0) {
+                    const newSpeedster = newSpeedsters[Math.floor(Math.random() * newSpeedsters.length)];
+                    collectedItems.push(newSpeedster.name);
+
+                    updateInventory(); // Update inventory
+                    alert(`${selectedSpeedster} has been exchanged! You received ${newSpeedster.name} of rarity ${newSpeedster.rarity}.`);
+                } else {
+                    alert(`No available speedsters to exchange for from rarity ${rarity}.`);
+                }
+            }
+        });
+
+        box.addEventListener('click', openBox);
+    </script>
+</body>
+</html>
