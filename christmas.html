@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Christmas Box Opening</title>
     <style>
+        /* General Styling */
         body {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-color: #e0f7fa;
+            background: linear-gradient(135deg, #b1e5f2, #ff4d4d);
             font-family: Arial, sans-serif;
             text-align: center;
+            overflow: hidden;
+            color: #4a148c;
         }
         .container {
             display: flex;
@@ -48,16 +51,53 @@
         .hidden {
             display: none;
         }
+
+        /* Inventory Styling */
+        .inventory {
+            width: 80%;
+            max-width: 300px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px solid #880e4f;
+            border-radius: 8px;
+            background-color: #f3e5f5;
+            color: #4a148c;
+        }
+        .inventory h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .inventory-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .inventory-list li {
+            font-size: 18px;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <div class="greeting">🎄 Merry Christmas! 🎅</div>
+        <div class="countdown" id="countdownTimer">Event ends in: 00d 00h 00m 00s</div>
         <div class="box" onclick="openBox()"></div>
         <div class="message hidden" id="surpriseMessage"></div>
+
+        <!-- Inventory Section -->
+        <div class="inventory">
+            <h3>Your Inventory</h3>
+            <ul class="inventory-list" id="inventoryList">
+                <!-- Collected items will appear here -->
+            </ul>
+            <button onclick="clearInventory()">Clear Inventory</button>
+        </div>
     </div>
 
     <script>
+        const inventory = [];
+
         function openBox() {
             const surprises = [
                 "🎄 A Christmas Tree!",
@@ -72,7 +112,56 @@
             const randomSurprise = surprises[Math.floor(Math.random() * surprises.length)];
             messageElement.textContent = randomSurprise;
             messageElement.classList.remove("hidden");
+
+            // Add item to inventory if it's not already there
+            if (!inventory.includes(randomSurprise)) {
+                inventory.push(randomSurprise);
+                updateInventory();
+            }
         }
+
+        function updateInventory() {
+            const inventoryList = document.getElementById("inventoryList");
+            inventoryList.innerHTML = ""; // Clear existing items
+            inventory.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                inventoryList.appendChild(li);
+            });
+        }
+
+        function clearInventory() {
+            inventory.length = 0; // Clear the inventory array
+            updateInventory();
+            document.getElementById("surpriseMessage").classList.add("hidden"); // Hide the message
+        }
+
+        // Countdown Timer function for the event
+        function countdownTimer() {
+            const eventDate = new Date("December 25, 2024 00:00:00").getTime();
+            const countdownElement = document.getElementById("countdownTimer");
+
+            function updateTimer() {
+                const now = new Date().getTime();
+                const timeLeft = eventDate - now;
+
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                countdownElement.textContent = `Event ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                if (timeLeft < 0) {
+                    countdownElement.textContent = "The Christmas event has ended!";
+                    clearInterval(timerInterval);
+                }
+            }
+
+            const timerInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Initial call to set the countdown immediately
+        }
+        countdownTimer();
     </script>
 
 </body>
