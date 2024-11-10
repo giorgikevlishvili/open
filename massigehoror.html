@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Massive Horror Chatbot</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        h1 {
+            color: red;
+            font-size: 3em;
+            text-shadow: 2px 2px 5px rgba(255, 0, 0, 0.8);
+        }
+        #chat-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            animation: fadeIn 1s ease-out;
+        }
+        #chat-box {
+            width: 100%;
+            height: 70%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid red;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column-reverse;
+        }
+        .message {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .message.user {
+            background-color: rgba(0, 255, 0, 0.3);
+            transform: scale(1.05);
+        }
+        .message.bot {
+            background-color: rgba(255, 0, 0, 0.3);
+            transform: scale(1.05);
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        button {
+            background-color: red;
+            color: white;
+            font-size: 1.2em;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: darkred;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <h1>Massive Horror Chatbot</h1>
+    <div id="chat-box"></div>
+
+    <div class="button-container">
+        <button onclick="sendMessage('hello')">Hello</button>
+        <button onclick="sendMessage('who are you')">Who are you?</button>
+        <button onclick="sendMessage('cartoon cat')">Cartoon Cat</button>
+        <button onclick="sendMessage('shrek')">Shrek</button>
+        <button onclick="sendMessage('slenderman')">Slenderman</button>
+        <button onclick="sendMessage('pennywise')">Pennywise</button>
+        <button onclick="sendMessage('the nun')">The Nun</button>
+        <button onclick="sendMessage('help')">Help</button>
+        <button onclick="sendMessage('babadook')">Babadook</button>
+        <button onclick="sendMessage('chucky')">Chucky</button>
+        <button onclick="sendMessage('freddy')">Freddy Krueger</button>
+        <button onclick="sendMessage('jason')">Jason Voorhees</button>
+        <button onclick="sendMessage('ghostface')">Ghostface</button>
+        <button onclick="sendMessage('michael myers')">Michael Myers</button>
+        <button onclick="sendMessage('the ring')">The Ring</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+
+    // Load sound effects
+    const soundEffects = {
+        userMessage: new Audio('user_message.mp3'), // Replace with actual sound file path
+        botResponse: new Audio('bot_response.mp3'), // Replace with actual sound file path
+        horrorSounds: {
+            cartoonCat: new Audio('cartoon_cat.mp3'), // Replace with actual sound file
+            shrek: new Audio('shrek.mp3'), // Replace with actual sound file
+            slenderman: new Audio('slenderman.mp3'),
+            pennywise: new Audio('pennywise.mp3'),
+            theNun: new Audio('thenun.mp3'),
+            babadook: new Audio('babadook.mp3'),
+            chucky: new Audio('chucky.mp3'),
+            freddy: new Audio('freddy.mp3'),
+            jason: new Audio('jason.mp3'),
+            ghostface: new Audio('ghostface.mp3'),
+            michaelMyers: new Audio('michaelmyers.mp3'),
+            theRing: new Audio('thering.mp3'),
+        }
+    };
+
+    // Define multiple responses for each keyword
+    const responses = {
+        'hello': [
+            "You shouldn't have said that... The darkness heard you.",
+            "A voice whispers in the distance: 'You’re not alone.'",
+            "Hello? Are you sure you want to talk to me?",
+        ],
+        'who are you': [
+            "I am the one who lurks in the shadows. You will never escape.",
+            "I am your nightmare. You can't run from me.",
+            "I am the monster under your bed. Are you scared yet?",
+        ],
+        'cartoon cat': [
+            "Cartoon Cat smiles, its eyes glowing in the dark. 'Run while you still can...'",
+            "You hear laughter echoing around you. Cartoon Cat is watching.",
+            "Cartoon Cat steps out of the shadows... it’s hungry.",
+        ],
+        'shrek': [
+            "\"What are you doing in my swamp, human? Come closer... and find out.\"",
+            "\"You think you can escape from me? Not in my swamp.\"",
+            "Shrek’s eyes glow red. 'Do you think you can survive here?'",
+        ],
+        // More horror characters...
+    };
+
+    // Function to send user message and get a random bot response
+    function sendMessage(keyword) {
+        addMessage(keyword, 'user');
+        playSound('userMessage'); // Play sound when user sends a message
+        generateBotResponse(keyword);
+    }
+
+    // Function to display messages
+    function addMessage(message, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender);
+        messageDiv.textContent = message;
+        chatBox.appendChild(messageDiv);
+    }
+
+    // Function to generate a random bot response
+    function generateBotResponse(userInput) {
+        // Get the responses for the given input, or a default if not found
+        const responseArray = responses[userInput] || responses[''];
+        
+        // Select a random response from the array
+        const randomResponse = responseArray[Math.floor(Math.random() * responseArray.length)];
+        
+        // Add the bot response to the chat
+        addMessage(randomResponse, 'bot');
+        playSound('botResponse'); // Play sound when bot responds
+        
+        // Trigger specific horror character sounds if needed
+        if (soundEffects.horrorSounds[userInput]) {
+            soundEffects.horrorSounds[userInput].play();
+        }
+
+        // Scroll to the bottom
+        setTimeout(() => {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 50); // Small delay to ensure the new message is rendered first
+    }
+
+    // Play a specific sound by name
+    function playSound(soundName) {
+        if (soundEffects[soundName]) {
+            soundEffects[soundName].play();
+        }
+    }
+</script>
+
+</body>
+</html>
