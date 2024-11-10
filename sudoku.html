@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(9, 50px);
+            grid-template-rows: repeat(9, 50px);
+            gap: 2px;
+            margin: 20px auto;
+            width: 450px;
+            height: 450px;
+            border: 2px solid #000;
+            background-color: #fff;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+
+        .cell input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 20px;
+            border: none;
+            background-color: transparent;
+        }
+
+        .cell input:focus {
+            outline: none;
+        }
+
+        #checkButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .valid {
+            background-color: #b0e57c;
+        }
+
+        .invalid {
+            background-color: #f28b82;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sudoku Game</h1>
+    <div class="grid" id="sudokuGrid"></div>
+    <button id="checkButton">Check Solution</button>
+
+    <script>
+        const sudokuBoard = [
+            [5, 3, 0, 0, 7, 0, 0, 0, 0],
+            [6, 0, 0, 1, 9, 5, 0, 0, 0],
+            [0, 9, 8, 0, 0, 0, 0, 6, 0],
+            [8, 0, 0, 0, 6, 0, 0, 0, 3],
+            [4, 0, 0, 8, 0, 3, 0, 0, 1],
+            [7, 0, 0, 0, 2, 0, 0, 0, 6],
+            [0, 6, 0, 0, 0, 0, 2, 8, 0],
+            [0, 0, 0, 4, 1, 9, 0, 0, 5],
+            [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ];
+
+        const gridContainer = document.getElementById('sudokuGrid');
+        const checkButton = document.getElementById('checkButton');
+
+        // Create the grid with input fields for each cell
+        function createGrid() {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+
+                    if (sudokuBoard[row][col] !== 0) {
+                        cell.textContent = sudokuBoard[row][col];
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.min = '1';
+                        input.max = '9';
+                        input.addEventListener('input', validateInput);
+                        cell.appendChild(input);
+                    }
+
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+
+        // Validate the player's input on the grid
+        function validateInput(event) {
+            const input = event.target;
+            const value = parseInt(input.value);
+
+            if (value >= 1 && value <= 9) {
+                input.classList.remove('invalid');
+                input.classList.add('valid');
+            } else {
+                input.classList.remove('valid');
+                input.classList.add('invalid');
+            }
+        }
+
+        // Check if the player's solution is correct
+        function checkSolution() {
+            let isValid = true;
+            const inputs = gridContainer.querySelectorAll('input');
+
+            // Create a new board from the player's inputs
+            const playerBoard = [];
+            for (let i = 0; i < 9; i++) {
+                playerBoard[i] = [];
+                for (let j = 0; j < 9; j++) {
+                    const inputValue = inputs[i * 9 + j].value;
+                    playerBoard[i].push(inputValue ? parseInt(inputValue) : 0);
+                }
+            }
+
+            // Check rows, columns, and 3x3 grids
+            for (let i = 0; i < 9; i++) {
+                if (!checkRow(playerBoard, i) || !checkColumn(playerBoard, i) || !checkGrid(playerBoard, i)) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                alert('Congratulations! You solved the puzzle.');
+            } else {
+                alert('The solution is incorrect. Try again!');
+            }
+        }
+
+        // Check if a row is valid
+        function checkRow(board, row) {
+            const rowSet = new Set(board[row]);
+            return rowSet.size === 9 && !rowSet.has(0);
+        }
+
+        // Check if a column is valid
+        function checkColumn(board, col) {
+            const colSet = new Set();
+            for (let i = 0; i < 9; i++) {
+                colSet.add(board[i][col]);
+            }
+            return colSet.size === 9 && !colSet.has(0);
+        }
+
+        // Check if a 3x3 grid is valid
+        function checkGrid(board, index) {
+            const startRow = Math.floor(index / 3) * 3;
+            const startCol = (index % 3) * 3;
+            const gridSet = new Set();
+
+            for (let row = startRow; row < startRow + 3; row++) {
+                for (let col = startCol; col < startCol + 3; col++) {
+                    gridSet.add(board[row][col]);
+                }
+            }
+
+            return gridSet.size === 9 && !gridSet.has(0);
+        }
+
+        // Set up the game
+        createGrid();
+
+        // Add event listener to the check button
+        checkButton.addEventListener('click', checkSolution);
+    </script>
+</body>
+</html>
