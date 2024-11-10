@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Box Opening</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #e0f7fa;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .box {
+            width: 150px;
+            height: 150px;
+            background-color: #ff1744;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .box:hover {
+            transform: scale(1.1);
+        }
+        .box::before {
+            content: "🎁";
+            font-size: 60px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .message {
+            font-size: 24px;
+            color: #4a148c;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="box" onclick="openBox()"></div>
+        <div class="message hidden" id="surpriseMessage"></div>
+    </div>
+
+    <script>
+        function openBox() {
+            const surprises = [
+                "🎄 A Christmas Tree!",
+                "🎅 Santa Hat!",
+                "🎁 A Special Gift!",
+                "☃️ Snowman!",
+                "🦌 Reindeer!",
+                "✨ Christmas Sparkles!",
+                "❄️ Snowflakes!"
+            ];
+            const messageElement = document.getElementById("surpriseMessage");
+            const randomSurprise = surprises[Math.floor(Math.random() * surprises.length)];
+            messageElement.textContent = randomSurprise;
+            messageElement.classList.remove("hidden");
+        }
+    </script>
+
+</body>
+</html>
