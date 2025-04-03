@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-A-Mole</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://supercell.com/images/e93a34598d3723641a72eb9ce02691f6/games_thumbnail_brawlstars.5cd76330.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin: 20px auto;
+            width: 330px;
+            height: 330px;
+            position: relative;
+        }
+
+        .hole {
+            background-color: #8b4513;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mole {
+            width: 70px;
+            height: 70px;
+            background-size: cover;
+            background-position: center;
+            display: none;
+            position: absolute;
+        }
+
+        .scoreboard {
+            font-size: 24px;
+            margin: 20px;
+        }
+
+        .game-over {
+            display: none;
+            font-size: 36px;
+            color: red;
+        }
+
+        #start-button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #start-button:disabled {
+            background-color: #cccccc;
+        }
+
+        .shop {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        .shop-item {
+            margin: 10px 0;
+        }
+
+        .shop-item button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .shop-item button:disabled {
+            background-color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Whack-A-Mole Game</h1>
+    <div class="scoreboard">
+        Score: <span id="score">0</span>
+    </div>
+    <div class="game-board" id="game-board">
+        <!-- Holes for moles to pop out -->
+        <div class="hole" id="hole-0"></div>
+        <div class="hole" id="hole-1"></div>
+        <div class="hole" id="hole-2"></div>
+        <div class="hole" id="hole-3"></div>
+        <div class="hole" id="hole-4"></div>
+        <div class="hole" id="hole-5"></div>
+        <div class="hole" id="hole-6"></div>
+        <div class="hole" id="hole-7"></div>
+        <div class="hole" id="hole-8"></div>
+    </div>
+    <div class="game-over" id="game-over-message">Game Over!</div>
+    <button id="start-button">Start Game</button>
+
+    <!-- Shop Section -->
+    <div class="shop" id="shop">
+        <h2>Shop</h2>
+        <div class="shop-item" id="extra-time-item">
+            <p>Extra Time (Cost: 50 points)</p>
+            <button id="buy-extra-time">Buy Extra Time</button>
+        </div>
+        <div class="shop-item" id="mole-skin-item">
+            <p>Change Mole Skin (Cost: 100 points)</p>
+            <button id="buy-mole-skin">Buy Mole Skin</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let activeMoleIndex = -1;
+        let gameInterval;
+        let gameDuration = 20; // seconds
+        let moleTimeout;
+        let gameRunning = false;
+        let extraTimePurchased = false;
+        let moleSkinPurchased = false;
+
+        const holes = document.querySelectorAll('.hole');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverMessage = document.getElementById('game-over-message');
+        const startButton = document.getElementById('start-button');
+        const extraTimeButton = document.getElementById('buy-extra-time');
+        const moleSkinButton = document.getElementById('buy-mole-skin');
+
+        // Mole Skin Images
+        const moleImages = [
+            'https://static.wikia.nocookie.net/brawlstars/images/3/31/Finx_Skin-Default.png/revision/latest/smart/width/250/height/250?cb=20250225085621',
+            'https://cdn.brawlify.com/brawlers/borderless/16000077.png'
+        ];
+
+        // Function to generate a random mole
+        function getRandomHole() {
+            return Math.floor(Math.random() * holes.length);
+        }
+
+        // Function to display a mole
+        function showMole() {
+            if (!gameRunning) return;
+
+            const moleIndex = getRandomHole();
+            if (moleIndex !== activeMoleIndex) {
+                if (activeMoleIndex >= 0) {
+                    // Hide the previous mole
+                    const previousMole = holes[activeMoleIndex].querySelector('.mole');
+                    if (previousMole) {
+                        previousMole.style.display = 'none';
+                    }
+                }
+                activeMoleIndex = moleIndex;
+                let mole = holes[moleIndex].querySelector('.mole');
+                if (!mole) {
+                    mole = document.createElement('div');
+                    mole.classList.add('mole');
+                    holes[moleIndex].appendChild(mole);
+                }
+                mole.style.display = 'block';
+                moleTimeout = setTimeout(() => mole.style.display = 'none', 1000); // Hide mole after 1 second
+
+                // If mole skin is purchased, change mole's appearance
+                if (moleSkinPurchased) {
+                    let currentImage = moleImages[Math.floor(Math.random() * moleImages.length)];
+                    mole.style.backgroundImage = `url(${currentImage})`;
+                }
+            }
+        }
+
+        // Whack mole when clicked
+        holes.forEach((hole, index) => {
+            hole.addEventListener('click', () => {
+                const mole = hole.querySelector('.mole');
+                if (mole && mole.style.display !== 'none') {
+                    score++;
+                    scoreDisplay.textContent = score;
+                    mole.style.display = 'none';
+                }
+            });
+        });
+
+        // Start the game
+        function startGame() {
+            score = 0;
+            scoreDisplay.textContent = score;
+            gameOverMessage.style.display = 'none';
+            startButton.disabled = true;
+            gameRunning = true;
+            let timeRemaining = gameDuration;
+
+            // If extra time was purchased, add additional time
+            if (extraTimePurchased) {
+                timeRemaining += 10; // Add 10 seconds
+            }
+
+            gameInterval = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    showMole();
+                } else {
+                    clearInterval(gameInterval);
+                    gameRunning = false;
+                    gameOverMessage.style.display = 'block';
+                    startButton.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // Set up the start button
+        startButton.addEventListener('click', () => {
+            startGame();
+        });
+
+        // Shop purchases
+        extraTimeButton.addEventListener('click', () => {
+            if (score >= 50 && !extraTimePurchased) {
+                score -= 50;
+                scoreDisplay.textContent = score;
+                extraTimePurchased = true;
+                alert('You have purchased extra time!');
+                extraTimeButton.disabled = true;
+            } else {
+                alert('You need 50 points to buy extra time!');
+            }
+        });
+
+        moleSkinButton.addEventListener('click', () => {
+            if (score >= 100 && !moleSkinPurchased) {
+                score -= 100;
+                scoreDisplay.textContent = score;
+                moleSkinPurchased = true;
+                alert('You have purchased a new mole skin!');
+                moleSkinButton.disabled = true;
+            } else {
+                alert('You need 100 points to buy a new mole skin!');
+            }
+        });
+    </script>
+
+</body>
+</html>
